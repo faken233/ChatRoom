@@ -34,7 +34,7 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
 
         // 如果token为空，直接放行，后面还有资源拦截器
         if (!StringUtils.hasText(token)){
-            chain.filter(exchange);
+            return chain.filter(exchange);
         }
 
         // 如果token不为空，解析token，并放入请求头中
@@ -47,7 +47,7 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
         Map<String ,Object > jsonToken = new HashMap<>(jsonObject);
 
         jsonToken.put("authorities", jsonObject.get("authorities"));
-        jsonToken.put("principal", jsonObject.get("user_name"));
+        jsonToken.put("principal", jsonObject.get("principal"));
 //        把token解析后的信息,放入jsonToken中,在微服务中传递
         request = request.mutate().header(GlobalConstants.JSONTOKEN, Base64.encode(JSONObject.toJSONString(jsonToken))).build();
         return chain.filter(exchange.mutate().request(request).build());

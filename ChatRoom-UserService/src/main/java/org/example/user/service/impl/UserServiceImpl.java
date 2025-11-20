@@ -1,6 +1,7 @@
 package org.example.user.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.jwt.JWTUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,9 +10,12 @@ import org.example.exception.BusinessException;
 import org.example.pojo.bo.UserBO;
 import org.example.pojo.dto.UserAuthority;
 import org.example.pojo.dto.UserDTO;
+import org.example.pojo.vo.Result;
 import org.example.pojo.vo.ResultStatusEnum;
+import org.example.user.entity.dto.UserLoginDTO;
 import org.example.user.entity.dto.UserRegisterDTO;
 import org.example.user.entity.po.User;
+import org.example.user.entity.vo.UserLoginInfoVo;
 import org.example.user.mapper.UserMapper;
 import org.example.user.service.RoleService;
 import org.example.user.service.UserRoleService;
@@ -19,7 +23,12 @@ import org.example.user.service.UserService;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -71,5 +80,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ResultStatusEnum.PHONE_ALREADY_REGISTERED);
         }
         return true;
+    }
+
+    @Override
+    public Result<UserLoginInfoVo> login(UserLoginDTO userLoginDTO) {
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .select(User::getId, User::getUsername, User::getPhone, User::getAvatar)
+                .eq(User::getPhone, userLoginDTO.getPhone())
+                .eq(User::getPassword, userLoginDTO.getPassword()));
+        if (Objects.isNull(user)){
+            return Result.fail(ResultStatusEnum.USER_NOT_EXIST);
+        }
+
+        Map<String, Object> payload = new HashMap<>();
+
+        long exp = Instant.now().plus(Duration.ofHours(1)).getEpochSecond();
+        payload.put("exp", exp);
+        UserBO userBO = BeanUtil.copyProperties(user, UserBO.class);
+        payload.put("principal", userBO);
+        payload.put("authorities", new String[]{});
+
+
+        String token = JWTUtil.createToken(payload, "QGAILAB".getBytes(StandardCharsets.UTF_8));
+        return Result.success(new UserLoginInfoVo(token));
     }
 }

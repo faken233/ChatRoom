@@ -1,0 +1,48 @@
+server:
+  port: 18081  # uaa服务端口
+
+spring:
+  application:
+    name: uaa  # 服务名称
+
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/chatroom?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+
+  # Redis配置
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 0
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+
+  # Nacos配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+
+# 安全配置
+security:
+  oauth2:
+    resource:
+      user-info-uri: http://localhost:18080/user/me
+      prefer-token-info: false
+
+logging:
+  level:
+    com.example.chatroom.userservice: debug
+    org.springframework.security: debug
+

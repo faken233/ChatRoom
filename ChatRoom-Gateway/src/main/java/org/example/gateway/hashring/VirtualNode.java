@@ -18,6 +18,12 @@ import java.io.Serializable;
 public class VirtualNode<T extends Node> implements Node, Serializable {
     private static final long serialVersionUID = 5410221835105700427L;
 
+    /**
+     * -- GETTER --
+     *  获取当前虚拟节点的真实节点
+     *
+     * @return 真实节点
+     */
     T physicalNode;
 
     Integer replicaIndex;
@@ -35,14 +41,6 @@ public class VirtualNode<T extends Node> implements Node, Serializable {
      */
     public boolean isVirtualOf(T anyPhysicalNode) {
         return anyPhysicalNode.getKey().equals(this.physicalNode.getKey());
-    }
-    /**
-     * 获取当前虚拟节点的真实节点
-     *
-     * @return 真实节点
-     */
-    public T getPhysicalNode() {
-        return this.physicalNode;
     }
 
     public static VirtualNode fromJSON(JSONObject jsonObject) {

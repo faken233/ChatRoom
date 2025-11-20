@@ -46,7 +46,7 @@ public class WebsocketInterceptor implements HandshakeInterceptor {
         JSONObject userJson = JSON.parseObject(json);
 
         //2.2 获取jsonToken中的用户角色
-        String user = (String) userJson.get("principal");
+        String user = userJson.get("principal").toString();
 
         //2.3 权限信息
         JSONArray authoritiesArray = userJson.getJSONArray("authorities");

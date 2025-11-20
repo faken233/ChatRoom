@@ -139,7 +139,7 @@ public class WebSocketSessionLoadBalancer implements ReactorServiceInstanceLoadB
         JSONObject userJson = JSON.parseObject(json);
 
         //2.2 获取jsonToken中的用户角色
-        String user = (String) userJson.get("principal");
+        String user = userJson.get("principal").toString();
         UserBO userBO = JSON.parseObject(user, UserBO.class);
         return userBO.getId().toString() + ":" + device;
 

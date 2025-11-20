@@ -77,6 +77,10 @@
             <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
         <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.jpower.kcp</groupId>
             <artifactId>kcp-netty</artifactId>
         </dependency>

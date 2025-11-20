@@ -1,0 +1,68 @@
+server:
+  port: 18083  # Gateway typically runs on a different port
+
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848  # Nacos server address
+
+    gateway:
+      routes:
+        # Example route configuration
+        - id: onmessage-service
+          uri: lb://onmessage
+          predicates:
+            - Path=/api/onmessage/**
+          filters:
+            - StripPrefix=1
+        - id: user
+          uri: lb://user
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=1
+        - id: uaa
+          uri: lb://uaa
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+        - id: websocket-route
+          uri: lb:ws://onmessage
+          predicates:
+            - Path=/api/ws/**
+          filters:
+            - StripPrefix=1
+
+
+      # Global CORS configuration
+      global_cors:
+        cors-configurations:
+          '[/**]':
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      # Enable load balancing
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+  redis:
+    host: localhost
+    port: 6379
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
+    reactor.netty.http.client: debug

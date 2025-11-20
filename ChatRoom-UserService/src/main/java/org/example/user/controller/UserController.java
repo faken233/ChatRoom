@@ -3,7 +3,9 @@ package org.example.user.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.pojo.dto.UserAuthority;
 import org.example.pojo.vo.Result;
+import org.example.user.entity.dto.UserLoginDTO;
 import org.example.user.entity.dto.UserRegisterDTO;
+import org.example.user.entity.vo.UserLoginInfoVo;
 import org.example.user.service.UserService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +42,10 @@ public class UserController {
         return Result.success(userService.register(userRegisterDTO));
     }
 
+    @PostMapping("/login")
+    public Result<UserLoginInfoVo> login(@RequestBody @Validated UserLoginDTO userRegisterDTO) {
+        return userService.login(userRegisterDTO);
+    }
 
 
 }

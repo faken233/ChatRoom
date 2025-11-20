@@ -15,15 +15,15 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RedissonConfig {
-    @Value("${REDIS_PASSWORD}")
-    private String password;
+//    @Value("${REDIS_PASSWORD}")
+//    private String password;
 
     @Bean
     public RedissonClient redissonClient() {
         // 配置
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://39.98.41.126:6379")
-                .setPassword(password);
+        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+//                .setPassword("");
         // 创建RedissonClient对象
         return Redisson.create(config);
     }
