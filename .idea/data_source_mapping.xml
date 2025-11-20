@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/ChatRoom-OnMessage/src/main/resources/init.sql" value="9c46c282-0dab-4fe0-8b17-41fa8d74695f" />
+    <file url="file://$PROJECT_DIR$/all-init.sql" value="9c46c282-0dab-4fe0-8b17-41fa8d74695f" />
+    <file url="file://$USER_HOME$/devtools/nacos/conf/mysql-schema.sql" value="9c46c282-0dab-4fe0-8b17-41fa8d74695f" />
+  </component>
+</project>
