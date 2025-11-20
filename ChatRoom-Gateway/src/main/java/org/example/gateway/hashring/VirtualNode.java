@@ -21,8 +21,6 @@ public class VirtualNode<T extends Node> implements Node, Serializable {
     /**
      * -- GETTER --
      *  获取当前虚拟节点的真实节点
-     *
-     * @return 真实节点
      */
     T physicalNode;
 

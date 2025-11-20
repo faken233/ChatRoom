@@ -7,13 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.constant.GlobalConstants;
-import org.example.constant.RedisCacheConstants;
-import org.example.exception.BusinessException;
-import org.example.onmessage.service.common.RedisCacheService;
 import org.example.pojo.bo.UserBO;
-import org.example.pojo.dto.UserAuthority;
-import org.example.pojo.dto.UserDTO;
-import org.example.pojo.vo.ResultStatusEnum;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -21,8 +15,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.*;
 

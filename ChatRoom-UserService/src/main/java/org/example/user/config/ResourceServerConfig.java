@@ -28,7 +28,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 //    @Autowired
 //    private TokenStore tokenStore;
     @Override
-    public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+    public void configure(ResourceServerSecurityConfigurer resources) {
         resources
 //                .tokenStore(tokenStore)
                 .tokenStore(tokenStore())
