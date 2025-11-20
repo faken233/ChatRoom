@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="OnMessageApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" singleton="false" nameIsGenerated="true">
+    <envs>
+      <env name="SIGN_KEY" value="QGAILAB" />
+    </envs>
+    <module name="ChatRoom-OnMessage" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="org.example.onmessage.OnMessageApplication" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="org.example.onmessage.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

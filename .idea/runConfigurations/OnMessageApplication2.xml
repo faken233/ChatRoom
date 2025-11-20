@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="OnMessageApplication2" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <envs>
+      <env name="SIGN_KEY" value="QGAILAB" />
+    </envs>
+    <module name="ChatRoom-OnMessage" />
+    <option name="PROGRAM_PARAMETERS" value="--server.port=18084" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="org.example.onmessage.OnMessageApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

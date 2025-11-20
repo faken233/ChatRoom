@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="UserApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <envs>
+      <env name="SIGN_KEY" value="QGAILAB" />
+    </envs>
+    <module name="ChatRoom-UserService" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="org.example.user.UserApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
