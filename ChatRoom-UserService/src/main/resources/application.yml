@@ -51,12 +51,12 @@ pagehelper:
   support-methods-arguments: true
   params: count=countSql
 
-# 安全配置
-security:
-  oauth2:
-    resource:
-      user-info-uri: http://localhost:18080/user/me
-      prefer-token-info: false
+## 安全配置
+#security:
+#  oauth2:
+#    resource:
+#      user-info-uri: http://localhost:18080/user/me
+#      prefer-token-info: false
 
 logging:
   level:

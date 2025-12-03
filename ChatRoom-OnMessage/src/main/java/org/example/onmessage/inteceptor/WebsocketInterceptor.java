@@ -1,6 +1,7 @@
 package org.example.onmessage.inteceptor;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.net.url.UrlQuery;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -8,14 +9,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.constant.GlobalConstants;
 import org.example.pojo.bo.UserBO;
+import org.example.utils.JwtUtil;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -30,11 +35,14 @@ public class WebsocketInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse, WebSocketHandler webSocketHandler, Map<String, Object> map) throws Exception {
         //1. 获取以base64加密的jsontoken
-        String token = serverHttpRequest.getHeaders().getFirst("jsonToken");
-
+        UrlQuery query = UrlQuery.of(serverHttpRequest.getURI().getQuery(), StandardCharsets.UTF_8);
+        String token = query.get("token").toString();
+        if (!StringUtils.hasText(token)) {
+            throw new RuntimeException("服务连接失败, 请登录");
+        }
 
         //2.1 解析token
-        String json = Base64.decodeStr(token);
+        String json = JwtUtil.parseJwt(token);
         JSONObject userJson = JSON.parseObject(json);
 
         //2.2 获取jsonToken中的用户角色
@@ -68,10 +76,6 @@ public class WebsocketInterceptor implements HandshakeInterceptor {
             log.warn("权限信息转换失败", e);
         }
         map.put("authorities", strings);
-        URI uri = serverHttpRequest.getURI();
-        String path = uri.getPath();
-        Long lastId = Long.valueOf(path.substring(path.lastIndexOf("/") + 1));
-        map.put(GlobalConstants.LAST_GLOBAL_MESSAGE_ID, lastId);
         return true;
     }
 

@@ -14,19 +14,19 @@ import java.time.LocalDateTime;
  */
 public class JwtUtil {
     public static String parseJwt(String token) throws BusinessException {
+
+        JSONObject claimsJson = null;
         try {
-
-            JSONObject claimsJson = JWTUtil.parseToken(token).getPayload().getClaimsJson();
-            Object exp = claimsJson.get("exp");
-            LocalDateTime expireTime = TimeUtil.transfer(Long.parseLong(exp.toString()), LocalDateTime.class);
-            if (expireTime.isBefore(LocalDateTime.now())) {
-                throw new BusinessException(ResultStatusEnum.TOKEN_EXPIRED);
-            }
-
-            return claimsJson.toString();
+            claimsJson = JWTUtil.parseToken(token).getPayload().getClaimsJson();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new BusinessException(ResultStatusEnum.SUCCESS);
+            throw new BusinessException(ResultStatusEnum.TOKEN_EXPIRED);
         }
+        Object exp = claimsJson.get("exp");
+        LocalDateTime expireTime = TimeUtil.transfer(Long.parseLong(exp.toString()), LocalDateTime.class);
+        if (expireTime.isBefore(LocalDateTime.now())) {
+            throw new BusinessException(ResultStatusEnum.TOKEN_EXPIRED);
+        }
+
+        return claimsJson.toString();
     }
 }

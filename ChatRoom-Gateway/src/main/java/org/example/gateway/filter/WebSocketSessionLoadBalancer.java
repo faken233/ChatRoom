@@ -1,7 +1,6 @@
 package org.example.gateway.filter;
 
 
-import cn.hutool.core.codec.Base64;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
@@ -12,6 +11,7 @@ import org.example.gateway.hashring.HashRingUtil;
 import org.example.gateway.hashring.Node;
 import org.example.gateway.service.common.RedisCacheService;
 import org.example.pojo.bo.UserBO;
+import org.example.utils.JwtUtil;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -23,7 +23,6 @@ import org.springframework.cloud.loadbalancer.core.NoopServiceInstanceListSuppli
 import org.springframework.cloud.loadbalancer.core.ReactorServiceInstanceLoadBalancer;
 import org.springframework.cloud.loadbalancer.core.RoundRobinLoadBalancer;
 import org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplier;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -62,14 +61,13 @@ public class WebSocketSessionLoadBalancer implements ReactorServiceInstanceLoadB
     @Override
     @SuppressWarnings("deprecation")
     public Mono<Response<ServiceInstance>> choose(Request request) {
-        log.info("choose");
         ServerWebExchange exchange = (ServerWebExchange) request.getContext();
         URI originalUrl = (URI) exchange.getAttributes().get(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR);
         String instancesId = originalUrl.getHost();
         if (GlobalConstants.LISTEN_WS_SERVICE_NAME.equals(instancesId)) {
             // 获取需要参与哈希的字段，此项目为 userId
-            final String userIdFromRequest = getUserIdFromRequest(exchange);
-            if (null != userIdFromRequest && null != this.serviceInstanceListSupplierProvider) {
+            final String userIdFromRequest = getUserHashStrFromWebSocketRequest(exchange);
+            if (null != this.serviceInstanceListSupplierProvider) {
                 // 请求参数中有 userId，需要经过哈希环的路由
                 ServiceInstanceListSupplier supplier = serviceInstanceListSupplierProvider.getIfAvailable(NoopServiceInstanceListSupplier::new);
                 return (supplier.get()).next().map(list -> getServiceInstanceByUserId(userIdFromRequest, instancesId));
@@ -123,19 +121,24 @@ public class WebSocketSessionLoadBalancer implements ReactorServiceInstanceLoadB
     }
 
     /**
-     * 从 WS/HTTP 请求 中获取待哈希字段 userId
+     * 从 WS请求 中获取待哈希字段
      *
      * @param exchange 请求上下文
-     * @return userId，可能为空
+     * @return 哈希字段
      */
-    protected static String getUserIdFromRequest(ServerWebExchange exchange) {
-        HttpHeaders headers = exchange.getRequest().getHeaders();
-        String token = headers.getFirst(GlobalConstants.JSONTOKEN);
+    protected static String getUserHashStrFromWebSocketRequest(ServerWebExchange exchange) {
+        // ws的连接凭证拼接在请求地址上
+        List<String> token1 = exchange.getRequest().getQueryParams().get("token");
+        List<String> device1 = exchange.getRequest().getQueryParams().get("device");
 
-        String device = headers.getFirst(GlobalConstants.DEVICE_TYPE);
+        if (token1 == null || token1.isEmpty() || device1 == null || device1.isEmpty()) {
+            throw new RuntimeException("服务连接失败, 请登录");
+        }
 
+        String token = token1.get(0);
+        String device = device1.get(0);
         //2.1 解析token
-        String json = Base64.decodeStr(token);
+        String json = JwtUtil.parseJwt(token);
         JSONObject userJson = JSON.parseObject(json);
 
         //2.2 获取jsonToken中的用户角色

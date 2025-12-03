@@ -38,8 +38,9 @@ public class OnMessageHandler implements WebSocketHandler {
     @Resource(name = ThreadPoolConstant.WS_MESSAGE_THREAD_POOL_NAME)
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     @Override
-    public void afterConnectionEstablished(WebSocketSession webSocketSession) throws Exception {
+    public void afterConnectionEstablished(WebSocketSession webSocketSession) {
         Long userId = getUserId(webSocketSession);
+        log.info("用户 {} 连接成功", getUserId(webSocketSession));
         publishEventUtils.userOnline(this, userId, webSocketSession);
 
     }

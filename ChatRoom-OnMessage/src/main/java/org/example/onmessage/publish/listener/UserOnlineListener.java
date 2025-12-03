@@ -38,8 +38,11 @@ public class UserOnlineListener {
     public void userOnline(UserOnlineEvent event) throws IOException {
         Long userId = event.getUserId();
         WebSocketSession webSocketSession = event.getWebSocketSession();
+        // 发送当前用户的最大信息序列号用于初始化
         sendClientId(userId, webSocketSession);
-        sendUnReadMessage(userId, webSocketSession);
+        // 存储用户ID和session的映射关系
+        GlobalWsMap.PC_SESSION.put(userId, webSocketSession);
+//        sendUnReadMessage(userId, webSocketSession);
     }
 
     private void sendUnReadMessage(Long userId, WebSocketSession webSocketSession) {
@@ -62,7 +65,7 @@ public class UserOnlineListener {
 
     private void sendClientId(Long userId, WebSocketSession webSocketSession) throws IOException {
         // 初始化发送最大clientId
-        GlobalWsMap.PC_SESSION.put(userId, webSocketSession);
+
         Map<Integer, Long> collect = AbstractMessage.DeviceType.getTypeMap().keySet().stream()
                 .collect(Collectors.toMap(Function.identity(), device -> messageBuffer.getMaxClientId(userId, device), (v1, v2) -> v1));
         WsMessageDTO wsMessageDTO = new WsMessageDTO();

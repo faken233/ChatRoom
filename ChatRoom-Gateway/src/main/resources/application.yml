@@ -19,18 +19,21 @@ spring:
             - Path=/api/onmessage/**
           filters:
             - StripPrefix=1
+
         - id: user
           uri: lb://user
           predicates:
-            - Path=/api/user/**
+            - Path=/api/user/**, /api/room/**
           filters:
             - StripPrefix=1
+
         - id: uaa
           uri: lb://uaa
           predicates:
             - Path=/api/auth/**
           filters:
             - StripPrefix=1
+
         - id: websocket-route
           uri: lb:ws://onmessage
           predicates:
@@ -43,9 +46,16 @@ spring:
       global_cors:
         cors-configurations:
           '[/**]':
-            allowedMethods: "*"
-            allowedHeaders: "*"
+            allowedOrigins: [ "http://localhost:5173" ] # 此行配置是重点
+            allowedMethods:
+              - GET
+              - POST
+              - HEAD
+              - PUT
+              - DELETE
+            allowedHeaders: '*'
             allowCredentials: true
+        add-to-simple-url-handler-mapping: true
 
       # Enable load balancing
       discovery:
@@ -65,4 +75,4 @@ spring:
 logging:
   level:
     org.springframework.cloud.gateway: debug
-    reactor.netty.http.client: debug
+    reactor.netty.http.client: info
