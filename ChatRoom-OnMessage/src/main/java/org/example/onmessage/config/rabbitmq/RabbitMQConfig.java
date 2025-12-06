@@ -2,7 +2,7 @@ package org.example.onmessage.config.rabbitmq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.onmessage.constants.RabbitMQConstant;
-import org.example.onmessage.publish.PublishEventUtils;
+import org.example.utils.NetworkUtils;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.retry.MessageRecoverer;
@@ -10,14 +10,13 @@ import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import javax.annotation.PostConstruct;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -29,8 +28,23 @@ import java.util.concurrent.CompletableFuture;
 @Configuration
 public class RabbitMQConfig implements ApplicationContextAware {
 
-    @Value("${spring.rabbitmq.listener.queues}")
-    private String[] queueNames;
+    private String queueName;
+
+    @Autowired
+    private Environment environment;
+
+    @PostConstruct
+    public void init() throws InterruptedException {
+        String port = environment.getProperty("server.port", "8080");
+        // TODO 自己电脑网卡环境有点复杂, 仅为测试, 生产环境获取IP地址等操作由实际情况决定
+        String ip = NetworkUtils.getIpAddress();
+        queueName = ip + ":" + port;
+    }
+    @Bean
+    public String queueName() {
+        return queueName;
+    }
+
     @Bean
     public DirectExchange errorMessageExchange(){
         return new DirectExchange("error.order.direct");
@@ -64,38 +78,53 @@ public class RabbitMQConfig implements ApplicationContextAware {
         return ExchangeBuilder.topicExchange(RabbitMQConstant.MQ_ACK_EXCHANGE).durable(true).build();
     }
 
+    @Bean(RabbitMQConstant.TEST_EXCHANGE)
+    public Exchange testExchange() {
+        return ExchangeBuilder.topicExchange(RabbitMQConstant.TEST_EXCHANGE).durable(true).build();
+    }
 
 
     @Bean(RabbitMQConstant.IP_QUEUE)
     public Queue queue(){
-        return QueueBuilder.durable(queueNames[0]).build();
+        return QueueBuilder.durable(queueName).build();
     }
 
     @Bean(RabbitMQConstant.MQ_GROUP_QUEUE)
     public Queue groupQueue(){
-        return QueueBuilder.durable(RabbitMQConstant.MQ_GROUP_QUEUE + "." +queueNames[0]).build();
+        return QueueBuilder.durable(RabbitMQConstant.MQ_GROUP_QUEUE + "." +queueName).build();
     }
 
     @Bean(RabbitMQConstant.MQ_ACK_QUEUE)
     public Queue ackQueue(){
-        return QueueBuilder.durable(RabbitMQConstant.MQ_ACK_QUEUE + "." +queueNames[0]).build();
+        return QueueBuilder.durable(RabbitMQConstant.MQ_ACK_QUEUE + "." +queueName).build();
     }
+
+    @Bean(RabbitMQConstant.TEST_QUEUE)
+    public Queue testQueue(){
+        return QueueBuilder.durable(RabbitMQConstant.TEST_QUEUE + "." +queueName).build();
+    }
+
 
 
 
     @Bean
     public Binding bindingSingle(@Qualifier(RabbitMQConstant.IP_QUEUE) Queue queue,  @Qualifier(RabbitMQConstant.WS_EXCHANGE) Exchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(queueNames[0]).noargs();
+        return BindingBuilder.bind(queue).to(exchange).with(queueName).noargs();
     }
 
     @Bean
     public Binding bindingGroup(@Qualifier(RabbitMQConstant.MQ_GROUP_QUEUE) Queue queue, @Qualifier(RabbitMQConstant.MQ_GROUP_EXCHANGE) Exchange exchange){
-        return BindingBuilder.bind(queue).to(exchange).with(queueNames[0]).noargs();
+        return BindingBuilder.bind(queue).to(exchange).with(queueName).noargs();
     }
 
     @Bean
     public Binding bindingAck(@Qualifier(RabbitMQConstant.MQ_ACK_QUEUE) Queue queue, @Qualifier(RabbitMQConstant.MQ_ACK_EXCHANGE) Exchange exchange){
-        return BindingBuilder.bind(queue).to(exchange).with(queueNames[0]).noargs();
+        return BindingBuilder.bind(queue).to(exchange).with(queueName).noargs();
+    }
+
+    @Bean
+    public Binding bindingTest(@Qualifier(RabbitMQConstant.TEST_QUEUE) Queue queue, @Qualifier(RabbitMQConstant.TEST_EXCHANGE) Exchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(queueName).noargs();
     }
 
     @Override
@@ -123,4 +152,6 @@ public class RabbitMQConfig implements ApplicationContextAware {
 //            }
 //        });
     }
+
+
 }

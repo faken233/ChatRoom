@@ -104,17 +104,16 @@ public class MessageService {
         if (redisCacheService.hasKey(RedisConstant.BUSINESS_ACK + messageBO.getId())) {
             dealUnAckedMessage(messageBO, offlineUsers, ipUserIdMap);
         }else {
-
             userIds = new HashSet<>();
 
-            // 发送目标设备和ip的map
+            // 发送目标设备和IP+端口的map
             Map<String, String> receiveUserDeviceIpMap = redisCacheService.getHashMap(RedisCacheConstants.ONLINE + messageBO.getTargetId(), String.class);
-            // 如果发送对象不在线
 
+            // 如果发送对象不在线, 代表不在线，离线保存
             if (CollectionUtils.isEmpty(receiveUserDeviceIpMap)) {
-                // 如果是空，代表不在线，离线保存
                 offlineUsers.add(messageBO.getTargetId());
             }
+
             // 发送给发送者其他设备
             Map<String, String> fromUserDeviceIpMap = redisCacheService.getHashMap(RedisCacheConstants.ONLINE + messageBO.getFromUserId(), String.class);
             fromUserDeviceIpMap.putAll(receiveUserDeviceIpMap);

@@ -32,8 +32,10 @@ spring:
     password: 123456
     virtual-host: /
     listener:
-      queues: onmessage1-queue
-
+      type: direct # 明确指定监听器容器类型为 simple [1](@ref)
+      direct:
+        acknowledge-mode: manual # 关键：设置为手动确认 [2,5](@ref)
+        prefetch: 1 # 可选设置：每次预取一条消息，有助于避免消息积压 [2](@ref)
   # 数据库配置（如果需要）
   datasource:
     url: jdbc:mysql://localhost:3306/chatroom?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai

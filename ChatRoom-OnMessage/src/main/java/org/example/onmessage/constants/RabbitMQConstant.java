@@ -17,4 +17,6 @@ public interface RabbitMQConstant {
     String MQ_GROUP_QUEUE = "ws.group.queue";
     String MQ_ACK_EXCHANGE = "mq.ack.exchange";
     String MQ_ACK_QUEUE = "mq.ack.queue";
+    String TEST_QUEUE = "testQueue";
+    String TEST_EXCHANGE = "testExchange";
 }

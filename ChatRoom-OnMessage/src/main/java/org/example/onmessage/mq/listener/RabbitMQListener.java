@@ -18,11 +18,10 @@ import org.example.pojo.bo.MessageBO;
 import org.example.pojo.bo.MessageSendBo;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author yinjunbiao
@@ -32,6 +31,7 @@ import java.io.IOException;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
+
 public class RabbitMQListener {
     private final PushWorker pushWorker;
     private final AckService ackService;
@@ -44,16 +44,9 @@ public class RabbitMQListener {
 //                    key = {"ws.#"}
 //            )
 //    )
-    @Value("${spring.rabbitmq.listener.queues}")
-    private String[] queueNames;
 
-    @Bean
-    public String[] queueNames() {
-        return queueNames;
-    }
-
-    //    @RabbitListener(queues = {"#{queueNames}", RabbitMQConstant.DEFAULT_QUEUE})
-    @RabbitListener(queues = "#{queueNames}")
+    //    @RabbitListener(queues = {"#{queueName}", RabbitMQConstant.DEFAULT_QUEUE})
+    @RabbitListener(queues = "#{queueName}")
     public void receive(Message message, Channel channel) throws IOException {
         byte[] body = message.getBody();
 
@@ -67,7 +60,7 @@ public class RabbitMQListener {
         }
     }
 
-    @RabbitListener(queues = RabbitMQConstant.MQ_GROUP_QUEUE + "." + "#{queueNames}")
+    @RabbitListener(queues = RabbitMQConstant.MQ_GROUP_QUEUE + "." + "#{queueName}")
     public void receiveGroup(Message message, Channel channel) throws IOException {
         byte[] body = message.getBody();
 
@@ -81,7 +74,7 @@ public class RabbitMQListener {
         }
     }
 
-    @RabbitListener(queues = RabbitMQConstant.MQ_ACK_QUEUE + "." + "#{queueNames}")
+    @RabbitListener(queues = RabbitMQConstant.MQ_ACK_QUEUE + "." + "#{queueName}")
     public void receiveAck(Message message, Channel channel) throws IOException {
         byte[] body = message.getBody();
 
@@ -91,6 +84,18 @@ public class RabbitMQListener {
         if (doBusiness(businessAckMessage)) {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), true);
         } else {
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConstant.TEST_QUEUE + "." + "#{queueName}")
+    public void receiveTest(Message message, Channel channel) throws IOException {
+        try {
+            String str = new String(message.getBody(), StandardCharsets.UTF_8);
+
+            log.info("收到消息：{}", str);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), true);
+        } catch (IOException e) {
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
         }
     }
