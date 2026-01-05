@@ -1,5 +1,5 @@
 local tokens_key = KEYS[1]
-local timestamp_key = KEYS[2]
+local timestamp_key = ARGV[4]
 --redis.log(redis.LOG_WARNING, "tokens_key " .. tokens_key)
 
 -- 每秒多少个
@@ -45,4 +45,3 @@ end
 redis.call('expire', tokens_key, window_size)
 
 return { allowed_num, remain_request }
-

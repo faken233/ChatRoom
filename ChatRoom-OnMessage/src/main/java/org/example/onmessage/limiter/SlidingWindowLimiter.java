@@ -41,9 +41,15 @@ public class SlidingWindowLimiter implements Limiter{
     // TODO：滑动窗口限流
     @Override
     public boolean limiter(WsMessageDTO wsMessageDTO){
-        List<String> keys = Arrays.asList(RedisConstant.SLIDING_WINDOW_LIMITER_PREFIX + wsMessageDTO.getFromUserId(),
-                UUID.randomUUID().toString());
-        List<Long> execute = redisCacheService.execute(sliding, keys, RedisConstant.SLIDING_WINDOW_RATE, RedisConstant.SLIDING_WINDOW_CAPACITY, String.valueOf(Instant.now().getEpochSecond()));
+        List<String> keys = Arrays.asList(RedisConstant.SLIDING_WINDOW_LIMITER_PREFIX + wsMessageDTO.getFromUserId());
+        List<Long> execute = redisCacheService.execute(
+                sliding,
+                keys,
+                RedisConstant.SLIDING_WINDOW_RATE,
+                RedisConstant.SLIDING_WINDOW_CAPACITY,
+                String.valueOf(Instant.now().getEpochSecond()),
+                UUID.randomUUID().toString()
+        );
         return execute.get(0) == 1;
     }
 
